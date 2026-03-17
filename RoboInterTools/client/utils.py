@@ -3,6 +3,8 @@ import json
 import numpy as np
 import requests, io, zipfile
 import imageio
+import tempfile
+import os
 
 base_url = 'http://{ip}:{port}'
 
@@ -116,9 +118,20 @@ def request_video_and_anno(ip, port, mode, username, button_mode, last_video_pat
                     anno = pickle.loads(anno_data)
 
     frames = []
-    reader = imageio.get_reader(video, "mp4")
-    for _, im in enumerate(reader):
-        frames.append(np.array(im))
+    # Some imageio/ffmpeg setups cannot open raw mp4 bytes directly.
+    # Write the payload to a temporary file first for stable decoding.
+    tmp_video_path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_video:
+            tmp_video.write(video)
+            tmp_video_path = tmp_video.name
+
+        reader = imageio.get_reader(tmp_video_path, "ffmpeg")
+        for _, im in enumerate(reader):
+            frames.append(np.array(im))
+    finally:
+        if tmp_video_path and os.path.exists(tmp_video_path):
+            os.remove(tmp_video_path)
 
     if mode == 'sam':
         return np.stack(frames), save_path, video_path, history_number, \

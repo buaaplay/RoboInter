@@ -1,0 +1,27 @@
+sam:
+  sam_ckpt_path: "sam2/checkpoints/sam2.1_hiera_large.pt"
+  model_config: "sam2/sam2/configs/sam2/sam2_hiera_l.yaml"
+  threshold: 0.5
+  device: "cuda:0"
+
+cotracker: {}
+
+server:
+  root_dir: "/home/robot/project/RoboInter/RoboInterTools"
+
+  no_annotation_lang: "asserts/demo_data/no_annotation_lang.json"
+  no_annotation_sam: "asserts/demo_data/no_annotation_sam.json"
+  has_annotation_lang: "asserts/demo_data/has_annotation_lang.json"
+  has_annotation_sam: "asserts/demo_data/has_annotation_sam.json"
+
+  user_list_file: "asserts/demo_data/user_list.txt"
+  user_history_dir: "user_config"
+
+  save_path_lang_temp: "asserts/demo_data/human_anno_lang/{video_name}.npz"
+  save_path_sam_temp: "asserts/demo_data/human_anno_sam/0/sam/{video_name}.npz"
+
+  sam_mask_save_path: "asserts/demo_data/human_anno_sam/0/sam_mask/{video_name}.npz"
+  sam_video_save_path: "asserts/demo_data/human_anno_sam/0/sam_video/{video_name}.mp4"
+
+  video_dir: "asserts/demo_data/video"
+  error_log: "user_config/error_video.txt"
