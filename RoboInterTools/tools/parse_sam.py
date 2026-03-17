@@ -213,7 +213,7 @@ if __name__ == "__main__":
     sam_config = cfg["sam"]
 
     if args.low:
-        sam_config["model_config"] = "configs/sam2.1/sam2.1_hiera_l_lowres.yaml"
+        sam_config["model_config"] = "configs/sam2.1/sam2.1_hiera_l.yaml"
 
     model_sam = Sam(
         sam_config["sam_ckpt_path"],
