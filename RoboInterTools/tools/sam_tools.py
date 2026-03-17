@@ -20,8 +20,6 @@ def forward_sam_multi(model_config, model_sam):
     select_frame = model_config["select_frame"]
     direction = model_config["direction"]
 
-    temp_image_list_save_dir = video_path.rsplit(".", 1)[0]
-    
     if 'ann_human' in video_path:
         video_path = model_config['origin_video_path']
     video = extract_frames(video_path)
@@ -36,7 +34,7 @@ def forward_sam_multi(model_config, model_sam):
     positive_points_dict = model_config["positive_points"][select_frame]
     negative_points_dict = model_config["negative_points"][select_frame]
     labels_dict = model_config["labels"][select_frame]
-    model_sam.set_video_list(video, temp_image_list_save_dir)
+    model_sam.set_video_list(video, video_path)
     torch.cuda.empty_cache()
     positive_points = [np.array(positive_points_dict[obj_idx]) for obj_idx in positive_points_dict.keys()]
     negative_points = [np.array(negative_points_dict[obj_idx]) for obj_idx in positive_points_dict.keys()]
@@ -57,8 +55,6 @@ def forward_sam_multi_stage(model_config, model_sam):
     select_frame = model_config["select_frame"]
     direction = model_config["direction"]
 
-    temp_image_list_save_dir = video_path.rsplit(".", 1)[0]
-    
     if 'ann_human' in video_path:
         video_path = model_config['origin_video_path']
     video = extract_frames(video_path)
@@ -94,7 +90,7 @@ def forward_sam_multi_stage(model_config, model_sam):
         # must contain the first frame
         video_part = np.concatenate([video[:1], video_part], axis=0)
         ind_part = np.concatenate([np.zeros_like(ind_part[:1]), ind_part], axis=0)
-        model_sam.set_video_list(video_part, temp_image_list_save_dir)
+        model_sam.set_video_list(video_part, video_path)
         masks_all[:, ind_part] = model_sam(positive_points, labels, 0, list(positive_points_dict.keys()))
 
     return masks_all
@@ -105,7 +101,6 @@ def forward_sam(model_config, model_sam):
     select_frame = model_config["select_frame"]
     direction = model_config["direction"]
 
-    temp_image_list_save_dir = video_path.rsplit(".", 1)[0]
     video = extract_frames(video_path)
     if not is_video:
         video = video[select_frame:select_frame + 1]
@@ -118,7 +113,7 @@ def forward_sam(model_config, model_sam):
     negative_points_dict = model_config["negative_points"]
     labels_dict = model_config["labels"]
     
-    model_sam.set_video_list(video, temp_image_list_save_dir)
+    model_sam.set_video_list(video, video_path)
     positive_points = [np.array(positive_points_dict[obj_idx]) for obj_idx in positive_points_dict.keys()]
     negative_points = [np.array(negative_points_dict[obj_idx]) for obj_idx in positive_points_dict.keys()]
     labels = [labels_dict[obj_idx] for obj_idx in positive_points_dict.keys()]

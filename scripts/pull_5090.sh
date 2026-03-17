@@ -3,12 +3,11 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEFAULT_REMOTE="origin"
+MAIN_REMOTE="origin"
 if git -C "$ROOT_DIR" remote | grep -qx "buaaplay"; then
-  DEFAULT_REMOTE="buaaplay"
+  MAIN_REMOTE="buaaplay"
 fi
-MAIN_REMOTE="${1:-$DEFAULT_REMOTE}"
-MAIN_BRANCH="${2:-$(git -C "$ROOT_DIR" branch --show-current)}"
+MAIN_BRANCH="buaaplay/5090-sync"
 
 ensure_clean_repo() {
   local repo_dir="$1"

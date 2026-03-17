@@ -93,7 +93,11 @@ class Sam:
 
     def set_video_list(self, video_list, video_path):
         self.video_list = video_list
-        self.inference_state = self.predictor.init_state(video_list, video_path, offload_video_to_cpu=True, offload_state_to_cpu=True)
+        self.inference_state = self.predictor.init_state(
+            video_path=video_path,
+            offload_video_to_cpu=True,
+            offload_state_to_cpu=True,
+        )
     
     def __call__(self, object_points, labels, select_frame, ann_obj_ids):
         masks = []
