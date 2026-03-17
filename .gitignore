@@ -147,3 +147,26 @@ dmypy.json
 # Caches and Datasets
 cache/
 data/
+
+# Local SAM2 checkpoints
+RoboInterTools/sam2/checkpoints/*.pt
+RoboInterTools/sam2/checkpoints/*.pth
+RoboInterTools/sam2/checkpoints/*.bin
+RoboInterTools/sam2/demo/backend/checkpoints/*.pt
+RoboInterTools/sam2/demo/backend/checkpoints/*.pth
+RoboInterTools/sam2/demo/backend/checkpoints/*.bin
+
+# Large SAM2 static resources
+RoboInterTools/sam2/assets/
+RoboInterTools/sam2/demo/frontend/public/fonts/
+RoboInterTools/sam2/demo/frontend/src/assets/
+RoboInterTools/sam2/notebooks/
+RoboInterTools/sam2/sav_dataset/example/
+RoboInterTools/sam2/**/*.ipynb
+RoboInterTools/sam2/**/*.mp4
+RoboInterTools/sam2/**/*.jpg
+RoboInterTools/sam2/**/*.jpeg
+RoboInterTools/sam2/**/*.png
+RoboInterTools/sam2/**/*.gif
+RoboInterTools/sam2/**/*.webp
+RoboInterTools/sam2/**/*.ttf
