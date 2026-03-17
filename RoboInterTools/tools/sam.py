@@ -1,4 +1,5 @@
 import cv2
+import os
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -93,6 +94,13 @@ class Sam:
 
     def set_video_list(self, video_list, video_path):
         self.video_list = video_list
+        os.makedirs(video_path, exist_ok=True)
+        for file_name in os.listdir(video_path):
+            if file_name.lower().endswith((".jpg", ".jpeg")):
+                os.remove(os.path.join(video_path, file_name))
+        for frame_idx, frame in enumerate(video_list):
+            frame_path = os.path.join(video_path, f"{frame_idx:05d}.jpg")
+            cv2.imwrite(frame_path, frame)
         self.inference_state = self.predictor.init_state(
             video_path=video_path,
             offload_video_to_cpu=True,
