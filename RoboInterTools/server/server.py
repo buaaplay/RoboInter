@@ -26,6 +26,15 @@ ROOT_DIR = None
 PATHS = None
 
 
+def resolve_fs_path(path):
+    """Resolve task-pool paths against ROOT_DIR when they are relative."""
+    if not path:
+        return path
+    if os.path.isabs(path):
+        return path
+    return os.path.normpath(os.path.join(ROOT_DIR, path))
+
+
 def load_server_config(config_path="./config/config.yaml"):
     """Load server configuration from yaml file."""
     global CONFIG, ROOT_DIR, PATHS
@@ -188,16 +197,17 @@ def get_video_lang():
 
         if not is_finished and video_path:
             # Read video file
-            if os.path.exists(video_path):
+            video_fs_path = resolve_fs_path(video_path)
+            if os.path.exists(video_fs_path):
                 with zf.open("video.mp4", "w") as f:
-                    with open(video_path, "rb") as video_file:
+                    with open(video_fs_path, "rb") as video_file:
                         f.write(video_file.read())
 
             # Get annotation info
             video_info = has_annotation.get(user_name, {}).get(video_path, {})
 
             # Load annotation if exists
-            anno_path = video_info.get('anno_path')
+            anno_path = resolve_fs_path(video_info.get('anno_path'))
             if anno_path and os.path.exists(anno_path):
                 npz_io = io.BytesIO()
                 anno_file = np.load(anno_path, allow_pickle=True)
@@ -311,8 +321,9 @@ def get_video_and_anno_sam():
     zip_io = io.BytesIO()
     with zipfile.ZipFile(zip_io, "w") as zf:
         if not is_finished:
+            video_fs_path = resolve_fs_path(video_path)
             with zf.open("video.mp4", "w") as f:
-                with open(video_path, "rb") as video_file:
+                with open(video_fs_path, "rb") as video_file:
                     f.write(video_file.read())
             # send save path
             save_path = has_annotation[user_name][video_path]['save_path'].rsplit('/', 1)[0]
