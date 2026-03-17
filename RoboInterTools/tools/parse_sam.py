@@ -6,7 +6,7 @@ import multiprocessing
 import concurrent.futures
 import json
 
-from sam_tools import predict_sam_video, predict_sam_video_multiframe, get_sam_mask_on_image_forward_mutli
+from sam_tools import predict_sam_video, predict_sam_video_multiframe, save_sam_mask_video_multiframe
 from tqdm import tqdm
 import argparse
 
@@ -184,14 +184,7 @@ def parse_and_save_results(line, model_sam, path_cfg, user, time, skip=False):
         return
 
     origin_video_path = model_config["origin_video_path"]
-    video = extract_frames(origin_video_path)
-    video_new, width, height = get_sam_mask_on_image_forward_mutli(model_config, mask_list, video)
-    result = cv2.VideoWriter(
-        video_save_path, cv2.VideoWriter_fourcc(*"XVID"), 20, (width, height)
-    )
-    for i in range(len(video_new)):
-        result.write(video_new[i])
-    result.release()
+    save_sam_mask_video_multiframe(model_config, mask_list, origin_video_path, video_save_path)
 
     UPDATE_VIDEO_LIST.append(video_save_path)
 

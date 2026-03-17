@@ -281,6 +281,70 @@ def get_sam_mask_on_image_forward_mutli(model_config, masks_list, video):
     
     return mask_image, width, height
 
+def save_sam_mask_video_multiframe(model_config, masks_list, video_path, save_path, alpha=0.5, fps=20):
+    select_frames = set(model_config["select_frames"])
+    positive_points_dict = model_config["positive_points"]
+    negative_points_dict = model_config["negative_points"]
+    obj_ids = list(positive_points_dict[model_config["select_frames"][0]].keys())
+    cmap = plt.get_cmap("tab10")
+    colors = [(np.array(cmap(int(i))[:3]) * 255).astype(np.uint8) for i in obj_ids]
+
+    capture = cv2.VideoCapture(video_path)
+    success, frame = capture.read()
+    if not success:
+        capture.release()
+        raise RuntimeError(f"Failed to read video: {video_path}")
+
+    height, width = frame.shape[:2]
+    writer = cv2.VideoWriter(
+        save_path, cv2.VideoWriter_fourcc(*"XVID"), fps, (width, height)
+    )
+    text_scale = width / 800
+    frame_idx = 0
+
+    while success and frame_idx < masks_list.shape[1]:
+        mix_image = frame.copy()
+        for obj_idx, obj_id in enumerate(obj_ids):
+            mask = masks_list[obj_idx][frame_idx][0]
+            color = colors[obj_idx]
+            if mask.any():
+                overlay = np.empty_like(frame)
+                overlay[:] = color
+                mix_image = np.where(
+                    mask[:, :, None],
+                    ((1 - alpha) * mix_image + alpha * overlay).astype(np.uint8),
+                    mix_image,
+                )
+                loc = np.where(mask)
+                loc = (int(np.mean(loc[0])), int(np.mean(loc[1])))
+                loc = (
+                    min(max(loc[0], 10), height - 10),
+                    min(max(loc[1], 10), width - 10),
+                )
+                cv2.putText(
+                    mix_image,
+                    str(obj_idx + 1),
+                    (loc[1], loc[0]),
+                    cv2.FONT_HERSHEY_TRIPLEX,
+                    text_scale,
+                    (255, 255, 255),
+                    1,
+                    cv2.LINE_AA,
+                )
+
+            if frame_idx in select_frames:
+                for point in positive_points_dict[frame_idx][obj_id]:
+                    cv2.circle(mix_image, (point[0], point[1]), 3, (0, 255, 0), -1)
+                for point in negative_points_dict[frame_idx][obj_id]:
+                    cv2.circle(mix_image, (point[0], point[1]), 3, (0, 0, 255), -1)
+
+        writer.write(mix_image)
+        success, frame = capture.read()
+        frame_idx += 1
+
+    writer.release()
+    capture.release()
+
 def get_sam_mask_on_image_forward(model_config, masks_list, video):
     select_frame = model_config["select_frame"]
     positive_points_dict = model_config["positive_points"]
