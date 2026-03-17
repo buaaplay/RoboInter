@@ -6,6 +6,10 @@ ROOT="/home/robot/project/RoboInter/RoboInterTools"
 echo "[1/5] Move to RoboInterTools root"
 cd "$ROOT"
 
+echo "[env] Python"
+which python
+python --version
+
 echo "[2/5] Ensure required directories exist"
 mkdir -p config
 mkdir -p asserts/demo_data/video
@@ -24,6 +28,18 @@ if [[ ! -f "$ROOT/asserts/demo_data/video/video_001.mp4" ]]; then
   exit 1
 fi
 ls -lh "$ROOT/asserts/demo_data/video/video_001.mp4"
+
+echo "[env] Check imageio ffmpeg backend"
+python - <<'PY'
+try:
+    import imageio
+    import imageio_ffmpeg
+    print("imageio ok")
+    print("imageio_ffmpeg ok")
+except Exception as e:
+    print("Missing dependency:", e)
+    raise
+PY
 
 echo "[4/5] Rebuild annotation pools"
 python "$ROOT/tools/generate_annotation_pool.py" \
