@@ -110,8 +110,12 @@ def request_video_and_anno(ip, port, mode, username, button_mode, last_video_pat
             history_number = int(f.read().decode("utf-8"))
 
         if mode == 'lang':
-            # Load annotation if present
-            anno = None
+            # Load annotation if present; otherwise return an explicit empty payload
+            # so the client can still enter manual language annotation mode.
+            anno = {
+                "has_ori_instruction": False,
+                "annotation": None,
+            }
             if "anno.npz" in zf.namelist():
                 with zf.open("anno.npz") as f:
                     anno_data = np.load(f, allow_pickle=True)['anno_file']
