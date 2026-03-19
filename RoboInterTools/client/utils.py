@@ -9,6 +9,13 @@ import os
 base_url = 'http://{ip}:{port}'
 
 
+def post_local(url, **kwargs):
+    """Send requests to the local annotation server without inheriting proxy env."""
+    with requests.Session() as session:
+        session.trust_env = False
+        return session.post(url, **kwargs)
+
+
 def get_available_username(ip, port, username):
     """Validate user against server's user list.
 
@@ -19,7 +26,7 @@ def get_available_username(ip, port, username):
     config = {
         "user_name": username,
     }
-    response = requests.post(
+    response = post_local(
         url, data=json.dumps(config), headers={"content-type": "application/json"}
     )
     if response.status_code == 200:
@@ -70,7 +77,7 @@ def request_video_and_anno(ip, port, mode, username, button_mode, last_video_pat
     if mode == 'sam':
         config["re_anno"] = re_anno
 
-    response = requests.post(
+    response = post_local(
         url, data=json.dumps(config), headers={"content-type": "application/json"}, stream=True
     )
     if response.status_code != 200:
@@ -166,7 +173,7 @@ def save_anno(ip, port, save_path, anno):
         "file": ("anno.npz", anno_bytes, "application/octet-stream"),
         "save_path": (None, save_path),
     }
-    response = requests.post(url, files=files)
+    response = post_local(url, files=files)
     if response.status_code == 200:
         return True
     else:
@@ -193,7 +200,7 @@ def drawback_video(ip, port, video_path, mode, username=''):
         "video_path": video_path,
         "username": username,
     }
-    response = requests.post(
+    response = post_local(
         url, data=json.dumps(config), headers={"content-type": "application/json"}
     )
     if response.status_code == 200:
@@ -220,7 +227,7 @@ def request_sam(ip, port, config, mode):
         url = f"{root_url}/predict_sam"
     else:
         url = f"{root_url}/get_mask"
-    response = requests.post(
+    response = post_local(
         url, data=json.dumps(config), headers={"content-type": "application/json"}
     )
     if response.status_code == 200:

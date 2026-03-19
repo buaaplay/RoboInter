@@ -209,11 +209,14 @@ def get_video_lang():
             # Load annotation if exists
             anno_path = resolve_fs_path(video_info.get('anno_path'))
             if anno_path and os.path.exists(anno_path):
-                npz_io = io.BytesIO()
-                anno_file = np.load(anno_path, allow_pickle=True)
-                np.savez_compressed(npz_io, anno_file=anno_file.get('data', anno_file))
-                npz_io.seek(0)
-                zf.writestr("anno.npz", npz_io.getvalue())
+                try:
+                    npz_io = io.BytesIO()
+                    anno_file = np.load(anno_path, allow_pickle=True)
+                    np.savez_compressed(npz_io, anno_file=anno_file.get('data', anno_file))
+                    npz_io.seek(0)
+                    zf.writestr("anno.npz", npz_io.getvalue())
+                except Exception as e:
+                    print(f"Warning: failed to load language draft {anno_path}: {e}", flush=True)
 
             # Include paths
             save_path = video_info.get('save_path', '')
